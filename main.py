@@ -1,119 +1,74 @@
-from time import sleep
-from telethon.sync import TelegramClient, events
-import re
+from typing import Final
+import os
+from dotenv import load_dotenv
+from discord import Intents, Client, Message, File
+from telethon import TelegramClient, events
 import asyncio
+import io
 
-api_id = 25713302
-api_hash = "c91b3d99304a83e58e92ab9d8a8b4d82"
-buy = True
-buyat = "-5%"
-channel = 2209371269
+# Load environment variables
+load_dotenv()
+DISCORD_TOKEN: Final[str] = os.getenv('DISCORD_TOKEN')
+TELEGRAM_HASH: Final[str] = os.getenv('TELEGRAM_HASH')
+API_ID: Final[int] = int(os.getenv('API_ID', '25713302'))  # Use environment variable, fallback to hardcoded value
 
-is_processing = False
-last_processed_message_id = None
+# Set up clients
+intents = Intents.default()
+intents.message_content = True
+discord_client = Client(intents=intents)
+telegram_client = TelegramClient('bob', API_ID, TELEGRAM_HASH)
 
-async def press_button(button_text):
-    async for message in client.iter_messages('paris_trojanbot', limit=1):
-        if message.reply_markup:
-            for row in message.reply_markup.rows:
-                for button in row.buttons:
-                    if button.text == button_text:
-                        await message.click(text=button_text)
-                        return True
-    return False
+@discord_client.event
+async def on_ready():
+    print(f'{discord_client.user} has connected to Discord!')
 
-async def wait_for_new_message():
-    new_message_event = asyncio.Event()
+async def send_discord_message(text: str, ds_id: int, file=None):
+    channel = discord_client.get_channel(ds_id)
+    if channel:
+        if file:
+            await channel.send(content=text, file=file)
+        else:
+            await channel.send(content=text)
 
-    @client.on(events.NewMessage(chats='paris_trojanbot'))
-    async def new_message_handler(event):
-        new_message_event.set()
+@telegram_client.on(events.NewMessage(chats=1002478633703))
+async def handle_new_message(event):
+    message = event.message
+    if message.text:
+        await send_discord_message(message.text, 1318328444227944579)
+    if message.photo:
+        image = io.BytesIO()
+        await telegram_client.download_media(message.photo, file=image)
+        image.seek(0)
+        discord_file = File(image, filename="image.jpg")
+        caption = message.text if message.text else "Image from Telegram"
+        await send_discord_message(caption, 1318328444227944579, file=discord_file)
 
-    await new_message_event.wait()
-    new_message_event.clear()
+@telegram_client.on(events.NewMessage(chats=1002209371269))
+async def handle_new_message(event):
+    message = event.message
+    if message.text:
+        await send_discord_message(message.text, 1318332562652926025)
+    if message.photo:
+        image = io.BytesIO()
+        await telegram_client.download_media(message.photo, file=image)
+        image.seek(0)
+        discord_file = File(image, filename="image.jpg")
+        caption = message.text if message.text else "Image from Telegram"
+        await send_discord_message(caption, 1318332562652926025, file=discord_file)
 
-async def wait_for_edited_message():
-    edited_message_event = asyncio.Event()
+async def main():
+    await telegram_client.start()
+    print("Telegram client started")
+    await discord_client.start(DISCORD_TOKEN)
 
-    @client.on(events.MessageEdited(chats='paris_trojanbot'))
-    async def edited_message_handler(event):
-        edited_message_event.set()
-
-    await edited_message_event.wait()
-    edited_message_event.clear()
-
-with TelegramClient('bob', api_id, api_hash) as client:
-    @client.on(events.NewMessage(chats=channel, pattern=r'.*\$\s+https?://\S+.*'))
-    async def handler(event):
-        global is_processing
-        global last_processed_message_id
-
-        if event.message.id == last_processed_message_id:
-            print("This message has already been processed. Waiting for a new command.")
-            return
-
-        if is_processing:
-            print("Currently processing a request. Please wait.")
-            return
-
-        is_processing = True
-
-        message = event.message.text
-        chat = await event.get_chat()
-        channel_info = f"Channel ID: {chat.id}"
-
-        match = re.search(r'\$\s+(https?://\S+)', message)
-        if match:
-            print(f"Message ID: {event.message.id}")
-            print(channel_info)
-
-            extracted_url = match.group(1)
-            print(f"Extracted URL: {extracted_url}")
-
-            await client.send_message('paris_trojanbot', extracted_url)
-
-            await wait_for_new_message()
-
-            button_pressed = await press_button('Limit')
-            if button_pressed:
-                print("Selected limit order")
-            else:
-                print("Limit button not found.")
-
-            sleep(0.5)
-
-            button_pressed = await press_button('Trigger Price: $-')
-            if button_pressed:
-                print("Selected trigger price order")
-
-                sleep(1)
-
-                await client.send_message('paris_trojanbot', buyat)
-
-                sleep(5)
-
-                if (buy == True):
-                    button_pressed = await press_button('CREATE ORDER')
-                    if button_pressed:
-                        print(f"Created order")
-                    else:
-                        print("CREATE ORDER button not found.")
-
-            else:
-                print("Trigger Price button not found.")
-
-                if (buy == True):
-                    button_pressed = await press_button('CREATE ORDER')
-                    if button_pressed:
-                        print(f"Created order")
-                    else:
-                        print("CREATE ORDER button not found.")
-
-            await client.send_message('HawkMoonCryptoTnstaff', f"Bot: bought {extracted_url}")
-
-
-            last_processed_message_id = event.message.id
-
-        is_processing = False
-
-    client.run_until_disconnected()
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(main())
+        loop.run_forever()  # Keep the bot running
+    except KeyboardInterrupt:
+        pass
+    finally:
+        loop.run_until_complete(telegram_client.disconnect())
+        loop.run_until_complete(discord_client.close())
+        loop.close()
