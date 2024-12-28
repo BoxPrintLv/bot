@@ -30,7 +30,6 @@ NEGATIVE_COLOR = "#FF0000"
 
 api_id = int(os.environ.get('API_ID'))
 api_hash = os.environ.get('API_HASH')
-channel = int(os.environ.get('CHANNEL_ID', 1002209371269))
 buy_enabled = os.environ.get('BUY_ENABLED', 'False').lower() == 'true'
 debug = os.environ.get('DEBUG', 'False').lower() == 'true'
 starting_balance = float(os.environ.get('STARTING_BALANCE', '0'))
