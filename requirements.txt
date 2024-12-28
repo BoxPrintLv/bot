@@ -1,3 +1,5 @@
-python-dotenv
-discord.py
 telethon
+matplotlib
+numpy
+python-dotenv
+flask
