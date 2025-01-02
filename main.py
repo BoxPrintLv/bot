@@ -106,7 +106,7 @@ async def run_client():
     client = TelegramClient('bob', api_id, api_hash)
     async with client:
         print("Bot successfully started and listening for messages. (srv)")
-        client.send_message('me', "the bot is now active!")
+        await client.send_message('me', "the bot is now active!")
         client.add_event_handler(
             lambda e: asyncio.create_task(handle_new_message(e, client)),
             events.NewMessage(chats=channel, pattern=r'\$\s+(\S+)')
