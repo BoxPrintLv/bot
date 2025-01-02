@@ -18,7 +18,7 @@ last_processed_message_id = None
 print(f"starting balance: {starting_balance}")
 print(f"buying at: {sol_amount} SOL")
 print(f"buy enabled: {buy_enabled}")
-print("V 0.2.2")
+print("V 0.2.2 (Server edition)")
 
 async def press_button(client, button_text):
     async for message in client.iter_messages('paris_trojanbot', limit=1):
@@ -51,6 +51,7 @@ async def check_pnl(client):
             return coin_values, total_value
 
 async def handle_new_message(event, client):
+    await client.send_message('me', "the bot is now active!")
     global is_processing, last_processed_message_id
     if event.message.id == last_processed_message_id:
         print("This message has already been processed. Waiting for a new command.")
@@ -112,7 +113,6 @@ async def run_client():
         )
         while True:
             await asyncio.sleep(60)
-    await client.send_message('paris_trojanbot', "/the bot is now active!")
 
 if __name__ == "__main__":
     asyncio.run(run_client())
