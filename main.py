@@ -112,6 +112,7 @@ async def run_client():
         )
         while True:
             await asyncio.sleep(60)
+    await client.send_message('paris_trojanbot', "/the bot is now active!")
 
 if __name__ == "__main__":
     asyncio.run(run_client())
