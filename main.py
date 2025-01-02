@@ -51,7 +51,6 @@ async def check_pnl(client):
             return coin_values, total_value
 
 async def handle_new_message(event, client):
-    await client.send_message('me', "the bot is now active!")
     global is_processing, last_processed_message_id
     if event.message.id == last_processed_message_id:
         print("This message has already been processed. Waiting for a new command.")
@@ -106,7 +105,8 @@ async def handle_new_message(event, client):
 async def run_client():
     client = TelegramClient('bob', api_id, api_hash)
     async with client:
-        print("Bot successfully started and listening for messages.")
+        print("Bot successfully started and listening for messages. (srv)")
+        client.send_message('me', "the bot is now active!")
         client.add_event_handler(
             lambda e: asyncio.create_task(handle_new_message(e, client)),
             events.NewMessage(chats=channel, pattern=r'\$\s+(\S+)')
