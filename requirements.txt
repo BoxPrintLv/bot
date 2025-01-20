@@ -1,5 +1,3 @@
 telethon
-matplotlib
-numpy
-python-dotenv
-flask
+re
+asyncio
