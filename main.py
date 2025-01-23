@@ -8,11 +8,11 @@ import keyboard
 from blessed import Terminal
 import random
 from collections import namedtuple
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 import win32gui
 import win32process
 import psutil
-load_dotenv()
+#load_dotenv()
 
 API_ID = int(os.environ.get('API_ID'))
 API_HASH = os.environ.get('API_HASH')
