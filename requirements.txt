@@ -2,7 +2,6 @@ telethon
 regex
 asyncio
 keyboard
-win32process
-win32gui
+pywin32
 psutil
 blessed
