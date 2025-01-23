@@ -9,9 +9,9 @@ from blessed import Terminal
 import random
 from collections import namedtuple
 #from dotenv import load_dotenv
-import win32gui
-import win32process
-import psutil
+#import win32gui
+#import win32process
+#import psutil
 #load_dotenv()
 
 API_ID = int(os.environ.get('API_ID'))
@@ -274,22 +274,22 @@ async def bot():
 
         log(f"Bot is running. Monitoring channel {TARGET_CHANNEL_ID}. Press Ctrl+C to stop.")
 
-        def is_console_focused():
-            foreground_window = win32gui.GetForegroundWindow()
-            _, process_id = win32process.GetWindowThreadProcessId(foreground_window)
-            return psutil.Process(process_id).name() == "WindowsTerminal.exe"
+        #def is_console_focused():
+        #    foreground_window = win32gui.GetForegroundWindow()
+        #    _, process_id = win32process.GetWindowThreadProcessId(foreground_window)
+        #    return psutil.Process(process_id).name() == "WindowsTerminal.exe"
 
-        def create_focused_callback(callback):
-            def wrapper(*args, **kwargs):
-                if is_console_focused():
-                    callback(*args, **kwargs)
-            return wrapper
+        #def create_focused_callback(callback):
+        #    def wrapper(*args, **kwargs):
+        #        if is_console_focused():
+        #            callback(*args, **kwargs)
+        #    return wrapper
 
         # Replace the existing keyboard bindings with these:
-        keyboard.add_hotkey("r", create_focused_callback(toggle_refresh))
-        keyboard.add_hotkey("b", create_focused_callback(change_buy_mode))
-        keyboard.add_hotkey("-", create_focused_callback(lambda: change_buy_amount(-0.01)))
-        keyboard.add_hotkey("+", create_focused_callback(lambda: change_buy_amount(0.01)))
+        #keyboard.add_hotkey("r", create_focused_callback(toggle_refresh))
+        #keyboard.add_hotkey("b", create_focused_callback(change_buy_mode))
+        #keyboard.add_hotkey("-", create_focused_callback(lambda: change_buy_amount(-0.01)))
+        #keyboard.add_hotkey("+", create_focused_callback(lambda: change_buy_amount(0.01)))
 
         await asyncio.gather(
             update_display(client),
